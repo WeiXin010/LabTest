@@ -27,6 +27,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
+    env:
+      SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+      APP_URL: http://localhost:8080
+
     services:
       selenium:
         image: selenium/standalone-chrome
@@ -66,15 +70,11 @@ jobs:
 
       - name: Wait for Selenium
         run: |
-          until curl -s http://localhost:4444/wd/hub/status | grep -q '"ready":true'; do
-            echo "Waiting for Selenium..."
-            sleep 2
+          for i in {1..10}; do
+            curl -s $SELENIUM_REMOTE_URL && break || sleep 3
           done
 
       - name: Run Selenium tests
-        env:
-          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
-          APP_URL: http://localhost:8080
         run: |
           # run your test command here, e.g.:
           node ./frontend/selenium_testing/login_testing.js
