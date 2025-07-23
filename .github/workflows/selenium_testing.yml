@@ -36,7 +36,7 @@ jobs:
       options: --network-alias=testserver
 
     env:
-      APP_URL: http://testserver:5173
+      APP_URL: http://localhost:5173
       SELENIUM_HOST: http://selenium:4444/wd/hub
 
     services:
@@ -52,6 +52,9 @@ jobs:
       - name: Install dependencies
         run : npm install --prefix ./frontend
 
+      - name: Install serve
+        run: npm install -g serve
+
       - name: List node_modules
         run: ls -l ./frontend/node_modules
 
@@ -62,7 +65,7 @@ jobs:
 
       - name: Start Vite preview server
         run: |
-          serve -s ./frontend/dist -l 5173 &
+          serve -s ./frontend/dist -l 5173 -n --host 0.0.0.0 &
           sleep 5
 
       - name: Verify server is running
