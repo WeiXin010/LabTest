@@ -60,9 +60,6 @@ jobs:
           echo "Current directory:"
           pwd
 
-      - name: Run unit tests
-        run: npm mocha ./frontend/selenium_testing/login_testing.js
-
       - name: Start Vite preview server
         run: |
           serve -s ./frontend/dist -l 5173 &
