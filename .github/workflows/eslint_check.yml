@@ -23,7 +23,7 @@ jobs:
         run: mkdir -p ./reports
 
       - name: Install ESLint SARIF Formatter
-        run: npm install @microsoft/eslint-formatter-sarif --save-dev
+        run: npm install @microsoft/eslint-formatter-sarif --save-dev --prefix ./frontend
 
       - name: Run ESLint with SARIF output
         working-directory: ./frontend
