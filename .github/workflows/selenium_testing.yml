@@ -29,20 +29,13 @@ jobs:
 
     env:
       SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
-      APP_URL: http://localhost:8080
+      APP_URL: http://localhost:5173
 
     services:
       selenium:
         image: selenium/standalone-chrome
         ports:
           - 4444:4444
-
-      nginx:
-        image: nginx:alpine
-        ports:
-          - 8080:80
-        options: >-
-          --mount type=bind,source=./frontend/dist,target=/usr/share/nginx/html,readonly
 
     steps:
       - name: Checkout code
@@ -62,11 +55,22 @@ jobs:
       - name: Build React app
         run: npm run build --prefix ./frontend
 
-      - name: Wait for Nginx to start
+      - name: Start Vite dev server in background
         run: |
-          until curl -s http://localhost:8080 > /dev/null; do
-            echo "Waiting for Nginx..."
-            sleep 2
+          npm run dev --prefix ./frontend -- --host &
+          echo "Vite server started"
+        shell: bash
+
+      - name: Wait for Vite to be ready
+        run: |
+          for i in {1..10}; do
+            if curl -s $APP_URL > /dev/null; then
+              echo "Vite is up!"
+              break
+            else
+              echo "Waiting for Vite..."
+              sleep 3
+            fi
           done
 
       - name: Wait for Selenium
@@ -79,6 +83,3 @@ jobs:
         run: |
           # run your test command here, e.g.:
           node ./frontend/selenium_testing/login_testing.js
-
-      - name: Stop Nginx container
-        run: docker stop nginx-test && docker rm nginx-test
