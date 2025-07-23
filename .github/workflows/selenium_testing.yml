@@ -64,6 +64,13 @@ jobs:
             sleep 2
           done
 
+      - name: Wait for Selenium
+        run: |
+          until curl -s http://localhost:4444/wd/hub/status | grep -q '"ready":true'; do
+            echo "Waiting for Selenium..."
+            sleep 2
+          done
+
       - name: Run Selenium tests
         env:
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub

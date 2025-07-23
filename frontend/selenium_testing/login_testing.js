@@ -7,10 +7,15 @@ const assert = require('assert');
 
 async function testHomePage() {
     const options = new chrome.Options().addArguments('--ignore-certificate-errors');
-    let driver = await new Builder().forBrowser('chrome').usingServer('http://localhost:4444/wd/hub').setChromeOptions(options).build();
+
+    const remoteUrl = process.env.SELENIUM_REMOTE_URL || 'http://localhost:4444/wd/hub';
+    const appUrl = process.env.APP_URL || 'http://localhost:8080';
+
+
+    let driver = await new Builder().forBrowser('chrome').usingServer(remoteUrl).setChromeOptions(options).build();
     try {
         // Navigate to your React app URL
-        await driver.get('http://localhost:8080');
+        await driver.get(appUrl);
 
         let loginButton = await driver.wait(until.elementLocated(By.xpath('//button[text()="Login"]')), 5000);
         const loginVisible = await loginButton.isDisplayed();
