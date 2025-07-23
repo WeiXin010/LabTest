@@ -37,6 +37,13 @@ jobs:
         ports:
           - 4444:4444
 
+      nginx:
+        image: nginx:alpine
+        ports:
+          - 8080:80
+        options: >-
+          --mount type=bind,source=${{ github.workspace }}/frontend/dist,target=/usr/share/nginx/html,readonly
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -54,12 +61,6 @@ jobs:
 
       - name: Build React app
         run: npm run build --prefix ./frontend
-
-      - name: Run Nginx container to serve React build
-        run: |
-          docker run -d --name nginx-test -p 8080:80 \
-          -v ./frontend/dist:/usr/share/nginx/html:ro \
-          nginx:alpine
 
       - name: Wait for Nginx to start
         run: |
