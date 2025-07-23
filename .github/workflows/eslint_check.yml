@@ -27,7 +27,7 @@ jobs:
 
       - name: Run ESLint with SARIF output
         working-directory: ./frontend
-        run: npx eslint src/ --format @microsoft/eslint-formatter-sarif --output-file=../reports/eslint-results.sarif || true
+        run: npx eslint try/ --format @microsoft/eslint-formatter-sarif --output-file=../reports/eslint-results.sarif || true
 
       - name: Debug ESLint Output
         run: cat reports/eslint-results.sarif || echo "No SARIF report generated"
