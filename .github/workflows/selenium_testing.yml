@@ -28,13 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:20
-      ports:
-       - 5173:5173
-      options: --network-alias=testserver
 
     env:
       SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
-      APP_URL: http://testserver:5173
+      APP_URL: http://localhost:5173
 
     services:
       selenium:
