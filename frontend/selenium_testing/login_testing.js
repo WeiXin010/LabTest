@@ -9,7 +9,7 @@ async function testHomePage() {
     const options = new chrome.Options().addArguments('--ignore-certificate-errors');
 
     const remoteUrl = process.env.SELENIUM_HOST || 'http://localhost:4444/wd/hub';
-    const appUrl = 'http://localhost:5173';
+    const appUrl = process.env.APP_URL || 'http://localhost:5173';
 
     console.log(remoteUrl);
     console.log(appUrl);
