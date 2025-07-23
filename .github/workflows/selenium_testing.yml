@@ -70,7 +70,7 @@ jobs:
           APP_URL: http://localhost:8080
         run: |
           # run your test command here, e.g.:
-          node ./selenium_testing/login_testing.js
+          node ./frontend/selenium_testing/login_testing.js
 
       - name: Stop Nginx container
         run: docker stop nginx-test && docker rm nginx-test
