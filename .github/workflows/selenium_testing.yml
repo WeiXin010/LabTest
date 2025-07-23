@@ -72,9 +72,6 @@ jobs:
           tar -xzvf frontend-build.tar.gz -C frontend/dist
           ls -l frontend/dist
 
-      - name: Install dependencies
-        run: npm install --prefix ./frontend
-
       - name: Start Vite preview server
         run: |
           npx vite preview --port 5173 --strictPort --host &
