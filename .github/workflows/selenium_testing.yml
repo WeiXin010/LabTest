@@ -6,88 +6,113 @@ on:
       - master
 
 jobs:
-  build:
+  build_and_prepare: # Renamed for clarity - this job prepares the app for testing
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4 # Use latest checkout action
 
       - name: Cache Node.js modules
         uses: actions/cache@v4
         with:
           path: ./frontend/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-modules
+          restore-keys: ${{ runner.os }}-node-modules-
 
       - name: Install Node.js dependencies
-        run: npm install --prefix ./frontend
-
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    container:
-      image: node:20
-
-    env:
-      SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
-      APP_URL: http://localhost:5173
-
-    services:
-      selenium:
-        image: selenium/standalone-chrome
-        ports:
-          - 4444:4444
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Install dependencies
-        run: npm install --prefix ./frontend
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
         run: npm install --prefix ./frontend
 
       - name: Build React app
         run: npm run build --prefix ./frontend
 
-      - name: Start Vite dev server in background
-        run: |
-          npm run dev --prefix ./frontend -- --host &
-          echo "Vite server started"
-        shell: bash
+      - name: Upload production build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend/dist # Or wherever your build output goes
 
-      - name: Wait for Vite to be ready
-        run: |
-          for i in {1..10}; do
-            if curl -s $APP_URL > /dev/null; then
-              echo "Vite is up!"
-              break
-            else
-              echo "Waiting for Vite..."
-              sleep 3
-            fi
-          done
+  test_selenium: # Renamed to clearly indicate its purpose
+    needs: build_and_prepare # Depend on the build job
+    runs-on: ubuntu-latest # Run on the host to manage services and container better
 
-      - name: Wait for Selenium
+    # The services are defined at the job level
+    services:
+      selenium:
+        image: selenium/standalone-chrome
+        ports:
+          - 4444:4444 # Map host port to container port
+        options: --shm-size="2g" # Recommended for Selenium stability
+
+      # Add a service for your frontend application
+      # This will run your compiled app (or dev server) as a service
+      app:
+        image: node:20 # Use node image for your app
+        ports:
+          - 5173:5173 # Expose Vite's default port
+        volumes:
+          - ${{ github.workspace }}/frontend:/app # Mount the frontend directory
+        working-directory: /app
+        command: sh -c "npm install && npm run dev -- --host 0.0.0.0" # Install and run dev server
+        # Or, if you want to serve the built app:
+        # command: sh -c "npm install && npm install -g serve && serve -s dist -l 5173"
+
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download frontend build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend/dist # Download to the correct path
+
+      - name: Setup Node.js (for running tests, not building app)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies (for tests)
+        run: npm install --prefix ./frontend
+
+      # --- Wait for services to be ready ---
+      # Selenium wait is often enough as it's the target of the app
+      - name: Wait for Selenium to be ready
         run: |
-          for i in {1..10}; do
-            if curl -s -o /dev/null -w "%{http_code}" $SELENIUM_REMOTE_URL | grep -q "200"; then
+          for i in {1..20}; do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:4444/wd/hub | grep -q "200"; then
               echo "Selenium is ready!"
               break
             else
               echo "Waiting for Selenium..."
-              sleep 3
+              sleep 5
             fi
           done
+          if [ $i -eq 20 ]; then
+            echo "Selenium did not become ready in time."
+            exit 1
+          fi
+
+      - name: Wait for App to be ready (if using `app` service)
+        run: |
+          for i in {1..20}; do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:5173 | grep -q "200"; then
+              echo "App is ready!"
+              break
+            else
+              echo "Waiting for App..."
+              sleep 5
+            fi
+          done
+          if [ $i -eq 20 ]; then
+            echo "App did not become ready in time."
+            exit 1
+          fi
 
       - name: Run Selenium tests
+        env:
+          # Now these URLs are accessible from the host where the tests run
+          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+          APP_URL: http://localhost:5173
         run: |
-          # run your test command here, e.g.:
           node ./frontend/selenium_testing/login_testing.js
