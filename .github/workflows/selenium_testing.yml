@@ -42,7 +42,7 @@ jobs:
         ports:
           - 8080:80
         options: >-
-          --mount type=bind,source=${{ github.workspace }}/frontend/dist,target=/usr/share/nginx/html,readonly
+          --mount type=bind,source=./frontend/dist,target=/usr/share/nginx/html,readonly
 
     steps:
       - name: Checkout code
