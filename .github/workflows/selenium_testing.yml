@@ -1,0 +1,79 @@
+name: Node.js Selenium Testing
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-modules
+
+      - name: Install Node.js dependencies
+        run: npm install
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    services:
+      selenium:
+        image: selenium/standalone-chrome
+        ports:
+          - 4444:4444
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Run Nginx container to serve React build
+        run: |
+          docker run -d --name nginx-test -p 8080:80 \
+          -v ./frontend/dist:/usr/share/nginx/html:ro \
+          nginx:alpine
+
+      - name: Wait for Nginx to start
+        run: |
+          until curl -s http://localhost:8080 > /dev/null; do
+            echo "Waiting for Nginx..."
+            sleep 2
+          done
+
+      - name: Run Selenium tests
+        env:
+          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+          APP_URL: http://localhost:8080
+        run: |
+          # run your test command here, e.g.:
+          node ./test/login_testing.js
+
+      - name: Stop Nginx container
+        run: docker stop nginx-test && docker rm nginx-test
