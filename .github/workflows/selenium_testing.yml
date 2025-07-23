@@ -37,7 +37,7 @@ jobs:
 
     env:
       APP_URL: http://testserver:5173
-      SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
+      SELENIUM_HOST: http://selenium:4444/wd/hub
 
     services:
       selenium:
@@ -53,7 +53,7 @@ jobs:
         run : npm install --prefix ./frontend
 
       - name: List node_modules
-        run: ls -l node_modules
+        run: ls -l ./frontend/node_modules
 
       - name: List files for debugging
         run: |
@@ -65,12 +65,12 @@ jobs:
 
       - name: Start Vite preview server
         run: |
-          serve -s ./dist -l 5173 &
+          serve -s ./frontend/dist -l 5173 &
           sleep 5
 
       - name: Verify server is running
         run: |
-          curl -f http://localhost:3000 || { echo "Server failed to start"; exit 1; }
+          curl -f $APP_URL || { echo "Server failed to start"; exit 1; }
 
       - name: Wait for Selenium server to be up
         run: |
