@@ -1,0 +1,15 @@
+services:
+  nginxwebsvr:
+    image: nginx:alpine
+    container_name: nginxwebsvr
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./src/:/var/www/html/
+    networks:
+      - my_network
+    ports:
+      - "8080:80"
+
+networks:
+    my_network:
+      driver: bridge
