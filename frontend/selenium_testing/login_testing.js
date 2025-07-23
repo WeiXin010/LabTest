@@ -71,7 +71,7 @@ async function testHomePage() {
         // Refresh page before testing
         await driver.navigate().refresh();
 
-        await driver.wait(until.elementLocated(By.css('input[placeholder="Username"]')), 10000);
+        await driver.wait(until.elementLocated(By.xpath('//button[text()="Login"]')), 10000);
 
         userField = await driver.findElement(By.css('input[placeholder="Username"]'), 10000);
         passwordField = await driver.findElement(By.css('input[placeholder="Password"]'), 10000);
