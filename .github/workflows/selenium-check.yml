@@ -3,7 +3,7 @@ name: React Selenium Testing
 on:
   push:
     branches:
-      - master
+      - testing
 
 jobs:
   build:
