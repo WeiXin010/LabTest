@@ -24,7 +24,7 @@ jobs:
         run: |
           echo "PWD: $(pwd)"
           echo "Tree of current repo:"
-          ls -R
+          ls -R src/
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
