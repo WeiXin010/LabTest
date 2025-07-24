@@ -20,15 +20,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List JavaScript and JSX files
+      - name: Show working directory and list everything
         run: |
-          echo "JS and JSX files in repo:"
-          find . -type f \( -name "*.js" -o -name "*.jsx" \)
+          echo "PWD: $(pwd)"
+          echo "Tree of current repo:"
+          ls -R
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          config-file: .github/codeql/codeql-config.yml
           languages: ${{ matrix.language }}
 
       - name: Perform CodeQL Analysis
