@@ -1,9 +1,9 @@
-const { Builder, By, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const assert = require('assert');
+import { Builder, By, until } from 'selenium-webdriver';
+import chrome from 'selenium-webdriver/chrome.js';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import assert from 'assert';
 
 async function testHomePage() {
     const options = new chrome.Options().addArguments('--ignore-certificate-errors');
