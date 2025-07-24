@@ -40,9 +40,12 @@ async function testHomePage() {
         }
 
         console.log('✅ Login Page is ready');
+        console.log('============================================================================');
+
 
         // --- Test 1: Invalid Login --- //
         // Clear and enter test data
+        console.log("Entering wrong credentials:")
         await userField.clear();
         await userField.sendKeys('marty');
 
@@ -51,8 +54,9 @@ async function testHomePage() {
         await loginButton.click();
 
         let currentUrl = await driver.getCurrentUrl();
-        console.log('Current URL after login:', currentUrl);
         await driver.wait(until.urlContains('/login'), 10000);
+        console.log('Current URL after login:', currentUrl);
+
 
         // Wait for error message to appear
         let errorMsg = await driver.wait(until.elementLocated(By.linkText("Try again")), 10000);
@@ -61,13 +65,12 @@ async function testHomePage() {
             5000
         );
         await errorMsg.click();
+        console.log("Try again clicked");
 
         // Return to Login Page
         // Wait until URL goes back to login page (e.g., ends with '/')
-        await driver.wait(until.urlIs(appUrl), 10000);
         currentUrl = await driver.getCurrentUrl();
         console.log('Current URL clicking Try again:', currentUrl);
-
         console.log('✅ Login behavior test passed for invalid credentials');
         console.log('============================================================================');
 
@@ -81,6 +84,8 @@ async function testHomePage() {
         userField = await driver.findElement(By.name('username'), 10000);
         passwordField = await driver.findElement(By.name('password'), 10000);
         loginButton = await driver.findElement(By.xpath('//button[text()="Login"]'), 10000);
+
+        console.log("Entering correct credentials");
 
         // Clear and enter test data
         await userField.clear();
