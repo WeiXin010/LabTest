@@ -21,7 +21,7 @@ const USER = {
 };
 
 // Routes
-app.post('/api/login', (req, res) => {
+app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
   if (username === USER.username && password === USER.password) {

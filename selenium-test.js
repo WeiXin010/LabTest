@@ -9,7 +9,7 @@ async function testHomePage() {
     const options = new chrome.Options().addArguments('--ignore-certificate-errors');
 
     const remoteUrl = process.env.SELENIUM_HOST || 'http://localhost:4444/wd/hub';
-    const appUrl = process.env.APP_URL || 'http://localhost:8080';
+    const appUrl = process.env.APP_URL || 'http://localhost:5555';
 
     console.log(remoteUrl);
     console.log(appUrl);
@@ -64,7 +64,7 @@ async function testHomePage() {
 
         // Return to Login Page
         // Wait until URL goes back to login page (e.g., ends with '/')
-        await driver.wait(until.urlIs("http://localhost:8080/"), 5000);
+        await driver.wait(until.urlIs(appUrl), 5000);
         currentUrl = await driver.getCurrentUrl();
         console.log('Current URL clicking Try again:', currentUrl);
 

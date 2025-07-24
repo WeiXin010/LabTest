@@ -30,11 +30,11 @@ jobs:
     container:
       image: node:20
       ports:
-        - 8080:8080
+        - 5555:5555
       options: --network-alias=testserver
 
     env:
-      APP_URL: http://testserver:8080
+      APP_URL: http://testserver:5555
       SELENIUM_HOST: http://selenium:4444/wd/hub
 
     services:
@@ -63,7 +63,7 @@ jobs:
 
       - name: Verify server is running
         run: |
-          curl -f http://localhost:80 || { echo "Server failed to start"; exit 1; }
+          curl -f http://localhost:5555 || { echo "Server failed to start"; exit 1; }
 
       - name: Wait for Selenium server to be up
         run: |
