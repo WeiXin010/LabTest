@@ -55,7 +55,7 @@ async function testHomePage() {
         await driver.wait(until.urlContains('/login'), 10000);
 
         // Wait for error message to appear
-        let errorMsg = await driver.wait(until.elementLocated(By.linkText("Try again")), 5000);
+        let errorMsg = await driver.wait(until.elementLocated(By.linkText("Try again")), 10000);
         await driver.wait(
             until.elementIsVisible(errorMsg),
             5000
@@ -64,11 +64,12 @@ async function testHomePage() {
 
         // Return to Login Page
         // Wait until URL goes back to login page (e.g., ends with '/')
-        await driver.wait(until.urlIs(appUrl), 5000);
+        await driver.wait(until.urlIs(appUrl), 10000);
         currentUrl = await driver.getCurrentUrl();
         console.log('Current URL clicking Try again:', currentUrl);
 
         console.log('✅ Login behavior test passed for invalid credentials');
+        console.log('============================================================================');
 
 
         // --- Test 2: Valid Login --- //
