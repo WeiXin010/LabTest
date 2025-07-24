@@ -20,6 +20,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: List JavaScript and JSX files
+        run: |
+          echo "JS and JSX files in repo:"
+          find . -type f \( -name "*.js" -o -name "*.jsx" \)
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
